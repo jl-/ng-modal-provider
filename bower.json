@@ -1,0 +1,23 @@
+{
+  "name": "ng-modal-provider",
+  "version": "0.0.0",
+  "homepage": "https://github.com/jl-/ng-modal-provider",
+  "authors": [
+    "jl- <i.dragonxx@gmail.com>"
+  ],
+  "description": "'angular modal provider'",
+  "keywords": [
+    "angular",
+    "ng",
+    "modal",
+    "provider"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
