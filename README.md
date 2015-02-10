@@ -13,12 +13,12 @@
     var app = angular.module('app',['ngModal'])
         .controller('AppCtrl',['$scope','ModalProvider',function($scope,ModalProvider){
             var scope = this;
-            ModalProvider.fromTemplateUrl('test.tpl.html');
+            scope.modal = ModalProvider.fromTemplateUrl('test.tpl.html');
             scope.openModal = function(){
-                ModalProvider.show();
+                scope.modal.show();
             }; 
             scope.closeModal = function(){
-                ModalProvider.hide();
+                scope.modal.hide();
             }
         }])
 </script>
