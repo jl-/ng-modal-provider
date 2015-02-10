@@ -13,7 +13,9 @@
     var app = angular.module('app',['ngModal'])
         .controller('AppCtrl',['$scope','ModalProvider',function($scope,ModalProvider){
             var scope = this;
-            scope.modal = ModalProvider.fromTemplateUrl('test.tpl.html');
+            scope.modal = ModalProvider.fromTemplateUrl('test.tpl.html',{
+                scope: $scope
+            });
             scope.openModal = function(){
                 scope.modal.show();
             }; 
