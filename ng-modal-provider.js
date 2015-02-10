@@ -2,49 +2,87 @@
 var ngModal = angular.module('ngModal',[]);
 
 
-ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', function($rootScope, $compile,$timeout,$http){
-    var modal = {};
+ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', '$q', function($rootScope, $compile,$timeout,$http,$q){
+    var service = {};
 
     var status = {};
 
-    var $backdrop = angular.element('<div class="fixed top ng-modal left right cover flex-row center">');
-    var $contentWrapper = angular.element('<div class="modal-content-wrapper">');
-    $backdrop.append($contentWrapper);
-    $backdrop.on('click',function(e){
-        e.stopPropagation();
-        modal.hide();
-    });
-    $contentWrapper.on('click',function(e){
-        e.stopPropagation();
-    });
-    document.body.appendChild($backdrop[0]);
+    var modals = {};
 
     function fetchTemplate(url,opts) {
-        opts = opts || {cache: true};
         return $http.get(url,{cache: opts.cache})
            .then(function(res){
                 return res.data && res.data.trim();
             });
     }
     function compile(template,opts) {
-        opts = opts || {};
         var scope = opts.scope && opts.scope.$new() || $rootScope.$new(true);
-        $contentWrapper.html(template);
-        $compile($contentWrapper)(scope);
+        return $compile(template)(scope);
     }
-    modal.fromTemplateUrl = function(url,opts){
-        opts = opts || {};
-        fetchTemplate(url,opts).then(function(template){
-            compile(template,opts);
+
+
+    function Modal(url,opts){
+        var self = this;
+
+        self.url = url;
+        self.opts = opts || {
+            cache: true // cache template
+        };
+
+        fetchTemplate(url,self.opts).then(function(template){
+            self.compiledTpl = compile(template,self.opts);
+            if(self.status === Modal.STATUS.PENDING){
+                self.status = Modal.STATUS.RESOLVED;
+                self.show();             
+            }
+            self.status = Modal.STATUS.RESOLVED;
         });
+        modals[url] = this;
+    }
+
+    /// status
+    Modal.STATUS = {
+        RESOLVED: 1,
+        PENDING: 2
     };
 
-    modal.show = function(){
+    Modal.prototype.show = function(){
+        if(this.status !== Modal.STATUS.RESOLVED){
+            this.status = Modal.STATUS.PENDING;
+            return;
+        }
+        service.setContent(this.compiledTpl);
         $backdrop.addClass('active');
     };
-    modal.hide = function(){
+    Modal.prototype.hide = function(){
         $backdrop.removeClass('active');
     };
 
-    return modal;
+    var $backdrop = angular.element('<div class="fixed top ng-modal left right cover flex-row center">');
+    var $contentWrapper = angular.element('<div class="modal-content-wrapper">');
+    $backdrop.append($contentWrapper);
+    $backdrop.on('click',function(e){
+        e.stopPropagation();
+        $backdrop.removeClass('active');
+    });
+    $contentWrapper.on('click',function(e){
+        e.stopPropagation();
+    });
+    document.body.appendChild($backdrop[0]);
+
+    service.fromTemplateUrl = function(url,opts){
+        return modals[url] || new Modal(url,opts);
+    };
+
+    service.setContent = function(content){
+        $contentWrapper.empty();
+        $contentWrapper.append(content);
+    };
+
+    ///////
+    ///dev console test
+    // service.modals = modals;
+    // window.ModalProvider = service;
+
+    return service;
 }]);
