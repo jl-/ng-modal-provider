@@ -9,6 +9,8 @@ ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', '
 
     var modals = {};
 
+    var currentModal;
+
     function fetchTemplate(url,opts) {
         return $http.get(url,{cache: opts.cache})
            .then(function(res){
@@ -17,7 +19,7 @@ ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', '
     }
     function compile(template,opts) {
         var scope = opts.scope && opts.scope.$new() || $rootScope.$new(true);
-        return $compile(template)(scope);
+        return $compile(template)(scope.$parent || scope);
     }
 
 
@@ -30,9 +32,9 @@ ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', '
         };
 
         fetchTemplate(url,self.opts).then(function(template){
-            self.compiledTpl = compile(template,self.opts);
+            self.tpl = template;
             if(opts.pre_append){
-                service.setContent(self.compiledTpl);
+                service.setModal(self);
             }
             if(self.status === Modal.STATUS.PENDING){
                 self.status = Modal.STATUS.RESOLVED;
@@ -54,7 +56,9 @@ ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', '
             this.status = Modal.STATUS.PENDING;
             return;
         }
-        service.setContent(this.compiledTpl);
+        if(currentModal !== this){
+            service.setModal(this);
+        }
         $backdrop.addClass('active');
     };
     Modal.prototype.hide = function(){
@@ -77,9 +81,10 @@ ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', '
         return modals[url] || new Modal(url,opts);
     };
 
-    service.setContent = function(content){
+    service.setModal = function(modal){
+        currentModal = modal;
         $contentWrapper.empty();
-        $contentWrapper.append(content);
+        $contentWrapper.append(compile(modal.tpl,modal.opts));
     };
 
     ///////
