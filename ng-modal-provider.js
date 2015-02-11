@@ -13,7 +13,7 @@ ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', '
 
     function fetchTemplate(url,opts) {
         return $http.get(url,{cache: opts.cache})
-           .then(function(res){
+            .then(function(res){
                 return res.data && res.data.trim();
             });
     }
@@ -39,7 +39,7 @@ ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', '
             }
             if(self.status === Modal.STATUS.PENDING){
                 self.status = Modal.STATUS.RESOLVED;
-                self.show();             
+                self.show();
             }
             self.status = Modal.STATUS.RESOLVED;
         });
@@ -79,14 +79,13 @@ ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', '
     document.body.appendChild($backdrop[0]);
 
     service.fromTemplateUrl = function(url,opts){
-        return modals[url] || new Modal(url,opts);
+        //return modals[url] || new Modal(url,opts);
+        return new Modal(url,opts);
     };
 
     service.setModal = function(modal){
-        if(currentModal){
-            currentModal.compiledTpl.detach(); 
-        }
         currentModal = modal;
+        $contentWrapper.html('');
         $contentWrapper.append(modal.compiledTpl);
     };
 
