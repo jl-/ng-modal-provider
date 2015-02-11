@@ -31,6 +31,9 @@ ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', '
 
         fetchTemplate(url,self.opts).then(function(template){
             self.compiledTpl = compile(template,self.opts);
+            if(opts.pre_append){
+                service.setContent(self.compiledTpl);
+            }
             if(self.status === Modal.STATUS.PENDING){
                 self.status = Modal.STATUS.RESOLVED;
                 self.show();             

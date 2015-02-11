@@ -14,7 +14,8 @@
         .controller('AppCtrl',['$scope','ModalProvider',function($scope,ModalProvider){
             var scope = this;
             scope.modal = ModalProvider.fromTemplateUrl('test.tpl.html',{
-                scope: $scope
+                scope: $scope,
+                pre_append: true
             });
             scope.openModal = function(){
                 scope.modal.show();
