@@ -9,7 +9,7 @@ ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', '
 
     var modals = {};
 
-    var currentModal;
+    var currentModal = null;
 
     function fetchTemplate(url,opts) {
         return $http.get(url,{cache: opts.cache})
@@ -19,7 +19,7 @@ ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', '
     }
     function compile(template,opts) {
         var scope = opts.scope && opts.scope.$new() || $rootScope.$new(true);
-        return $compile(template)(scope.$parent || scope);
+        return $compile(template)(scope);
     }
 
 
@@ -32,9 +32,10 @@ ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', '
         };
 
         fetchTemplate(url,self.opts).then(function(template){
-            self.tpl = template;
+            self.compiledTpl = compile(template,self.opts);
             if(opts.pre_append){
                 service.setModal(self);
+                //$contentWrapper.append(self.compiledTpl);
             }
             if(self.status === Modal.STATUS.PENDING){
                 self.status = Modal.STATUS.RESOLVED;
@@ -82,13 +83,15 @@ ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', '
     };
 
     service.setModal = function(modal){
+        if(currentModal){
+            currentModal.compiledTpl.detach(); 
+        }
         currentModal = modal;
-        $contentWrapper.empty();
-        $contentWrapper.append(compile(modal.tpl,modal.opts));
+        $contentWrapper.append(modal.compiledTpl);
     };
 
     ///////
-    ///dev console test
+    ///for dev console inspect 
     // service.modals = modals;
     // window.ModalProvider = service;
 
