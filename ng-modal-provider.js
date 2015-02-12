@@ -43,7 +43,7 @@ ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', '
             }
             self.status = Modal.STATUS.RESOLVED;
         });
-        modals[url] = this;
+        //modals[url] = this;
     }
 
     /// status
