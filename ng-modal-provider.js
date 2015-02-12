@@ -7,7 +7,7 @@ ngModal.factory('ModalProvider',['$rootScope', '$compile','$timeout', '$http', '
 
     var status = {};
 
-    var modals = {};
+    // var modals = {};
 
     var currentModal = null;
 
